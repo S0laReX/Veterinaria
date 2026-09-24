@@ -1,5 +1,106 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model Veterinaria.Models.ServicioVeterinario
+
 @{
+    ViewData["Title"] = "Eliminar Servicio";
 }
+
+<div class="container py-4">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-7">
+
+            <div class="card
+                border-danger
+                shadow-sm">
+
+                <div class="card-header
+                    bg-danger
+                    text-white">
+
+                    <h1 class="h4 mb-0">
+                        Eliminar servicio
+                    </h1>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="alert alert-warning">
+
+                        ¿Está seguro de que desea eliminar
+                        este servicio?
+
+                    </div>
+
+
+                    <dl class="row">
+
+                        <dt class="col-sm-4">
+                            Nombre
+                        </dt>
+
+                        <dd class="col-sm-8">
+                            @Model.Nombre
+                        </dd>
+
+
+                        <dt class="col-sm-4">
+                            Descripción
+                        </dt>
+
+                        <dd class="col-sm-8">
+                            @Model.Descripcion
+                        </dd>
+
+
+                        <dt class="col-sm-4">
+                            Precio
+                        </dt>
+
+                        <dd class="col-sm-8">
+                            @Model.Precio.ToString("N2")
+                        </dd>
+
+                    </dl>
+
+
+                    <form asp-action="Delete"
+                          method="post">
+
+                        <input asp-for="Id"
+                               type="hidden" />
+
+
+                        <div class="d-flex
+                            justify-content-end
+                            gap-2">
+
+                            <a asp-action="Index"
+                               class="btn btn-secondary">
+
+                                Cancelar
+
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-danger">
+
+                                Eliminar
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

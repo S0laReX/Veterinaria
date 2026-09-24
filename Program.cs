@@ -92,24 +92,24 @@ app.MapRazorPages();
 // SEEDING
 // ============================================================
 
-//using (var scope = app.Services.CreateScope())
-//{
-//    try
-//    {
-//        await DbInitializer.InitializeAsync(scope.ServiceProvider);
-//    }
-//    catch (Exception ex)
-//    {
-//        var logger =
-//            scope.ServiceProvider
-//                .GetRequiredService<ILogger<Program>>();
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        await DbInitializer.InitializeAsync(scope.ServiceProvider);
+    }
+    catch (Exception ex)
+    {
+        var logger =
+            scope.ServiceProvider
+                .GetRequiredService<ILogger<Program>>();
 
-//        logger.LogError(
-//            ex,
-//            "Ocurrió un error inicializando la base de datos.");
+        logger.LogError(
+            ex,
+            "Ocurrió un error inicializando la base de datos.");
 
-//        throw;
-//    }
-//}
+        throw;
+    }
+}
 
 app.Run();

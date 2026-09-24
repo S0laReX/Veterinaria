@@ -1,5 +1,44 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model Veterinaria.Models.ServicioVeterinario
+
+<div>
+
+    <dl class="row mb-0">
+
+        <dt class="col-sm-4">
+            ID
+        </dt>
+
+        <dd class="col-sm-8">
+            @Model.Id
+        </dd>
+
+
+        <dt class="col-sm-4">
+            Nombre
+        </dt>
+
+        <dd class="col-sm-8">
+            @Model.Nombre
+        </dd>
+
+
+        <dt class="col-sm-4">
+            Descripción
+        </dt>
+
+        <dd class="col-sm-8">
+            @Model.Descripcion
+        </dd>
+
+
+        <dt class="col-sm-4">
+            Precio
+        </dt>
+
+        <dd class="col-sm-8 fw-semibold">
+            @Model.Precio.ToString("N2")
+        </dd>
+
+    </dl>
+
+</div>
