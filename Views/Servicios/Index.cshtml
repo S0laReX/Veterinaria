@@ -1,5 +1,363 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<Veterinaria.Models.ServicioVeterinario>
+
 @{
+    ViewData["Title"] = "Servicios Veterinarios";
+}
+
+<div class="container py-4">
+
+    <!-- Encabezado -->
+    <div class="d-flex flex-column flex-md-row
+        justify-content-between
+        align-items-md-center
+        gap-3 mb-4">
+
+        <div>
+            <h1 class="h3 mb-1">
+                Servicios Veterinarios
+            </h1>
+
+            <p class="text-muted mb-0">
+                Administración de los servicios disponibles.
+            </p>
+        </div>
+
+        <div>
+            <a asp-action="Create"
+               class="btn btn-primary">
+                Crear servicio
+            </a>
+        </div>
+
+    </div>
+
+
+    <!-- Mensajes -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+             role="alert">
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show"
+             role="alert">
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+
+    <!-- Tabla -->
+    <div class="card shadow-sm">
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table
+                    table-hover
+                    align-middle
+                    mb-0">
+
+                    <thead class="table-light">
+
+                        <tr>
+                            <th>Nombre</th>
+
+                            <th>Descripción</th>
+
+                            <th class="text-end">
+                                Precio
+                            </th>
+
+                            <th class="text-center">
+                                Acciones
+                            </th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if (Model.Any())
+                        {
+                            @foreach (var servicio in Model)
+                            {
+                                <tr>
+
+                                    <td class="fw-semibold">
+                                        @servicio.Nombre
+                                    </td>
+
+                                    <td>
+                                        @if (servicio.Descripcion.Length > 80)
+                                        {
+                                            @(servicio.Descripcion[..80] + "...")
+                                        }
+                                        else
+                                        {
+                                            @servicio.Descripcion
+                                        }
+                                    </td>
+
+                                    <td class="text-end">
+                                        @servicio.Precio.ToString("N2")
+                                    </td>
+
+                                    <td>
+
+                                        <div class="d-flex
+                                            justify-content-center
+                                            flex-wrap
+                                            gap-2">
+
+                                            <!--
+                                                VER
+
+                                                No navega a otra página.
+                                                Bootstrap abre el Modal y
+                                                JavaScript obtiene los datos.
+                                            -->
+                                            <button type="button"
+                                                    class="btn btn-sm btn-info"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#detailsModal"
+                                                    data-id="@servicio.Id">
+
+                                                Ver
+                                            </button>
+
+
+                                            <a asp-action="Edit"
+                                               asp-route-id="@servicio.Id"
+                                               class="btn btn-sm btn-warning">
+
+                                                Editar
+                                            </a>
+
+
+                                            <a asp-action="Delete"
+                                               asp-route-id="@servicio.Id"
+                                               class="btn btn-sm btn-danger">
+
+                                                Eliminar
+                                            </a>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+
+                                <td colspan="4"
+                                    class="text-center
+                                    text-muted
+                                    py-5">
+
+                                    No existen servicios registrados.
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     MODAL DE DETALLES
+     ========================================================= -->
+
+<div class="modal fade"
+     id="detailsModal"
+     tabindex="-1"
+     aria-labelledby="detailsModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title"
+                    id="detailsModalLabel">
+
+                    Detalles del servicio
+
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+
+            </div>
+
+
+            <div class="modal-body"
+                 id="detailsModalBody">
+
+                <div class="text-center py-4">
+
+                    <div class="spinner-border text-primary"
+                         role="status">
+
+                        <span class="visually-hidden">
+                            Cargando...
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                    Cerrar
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const modal =
+                document.getElementById("detailsModal");
+
+            const modalBody =
+                document.getElementById("detailsModalBody");
+
+            /*
+             * Url base generada por MVC.
+             */
+            const detailsUrl =
+                '@Url.Action("Details", "Servicios")';
+
+
+            modal.addEventListener(
+                "show.bs.modal",
+                async function (event) {
+
+                    const button = event.relatedTarget;
+
+                    const id =
+                        button.getAttribute("data-id");
+
+
+                    // Mostrar indicador de carga.
+                    modalBody.innerHTML = `
+                        <div class="text-center py-4">
+
+                            <div class="spinner-border text-primary"
+                                 role="status">
+
+                                <span class="visually-hidden">
+                                    Cargando...
+                                </span>
+
+                            </div>
+
+                        </div>
+                    `;
+
+
+                    try {
+
+                        /*
+                         * Solicitud AJAX/FETCH al servidor.
+                         *
+                         * Solamente se descarga el HTML parcial,
+                         * no se recarga Index.cshtml.
+                         */
+                        const response =
+                            await fetch(`${detailsUrl}/${id}`);
+
+
+                        if (!response.ok) {
+
+                            throw new Error(
+                                "No se pudo obtener el servicio."
+                            );
+
+                        }
+
+
+                        const html =
+                            await response.text();
+
+
+                        modalBody.innerHTML = html;
+
+                    }
+                    catch (error) {
+
+                        console.error(error);
+
+                        modalBody.innerHTML = `
+                            <div class="alert alert-danger mb-0">
+
+                                No fue posible cargar
+                                la información del servicio.
+
+                            </div>
+                        `;
+
+                    }
+
+                }
+            );
+
+        });
+
+    </script>
+
 }
