@@ -13,9 +13,18 @@
         @ViewData["Title"] - Veterinaria
     </title>
 
+
+    <!-- Bootstrap -->
     <link rel="stylesheet"
           href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+
+    <!-- CSS -->
     <link rel="stylesheet"
           href="~/css/site.css"
           asp-append-version="true" />
@@ -25,34 +34,40 @@
 
 <body>
 
+    <!-- =====================================================
+         NAVBAR
+         ===================================================== -->
+
     <header>
 
-        <nav class="navbar
-            navbar-expand-lg
-            navbar-dark
-            bg-dark
-            shadow-sm">
+        <nav class="navbar navbar-expand-lg navbar-dark
+                    bg-success shadow-sm sticky-top">
 
             <div class="container">
 
                 <!-- LOGO -->
+
                 <a class="navbar-brand fw-bold"
                    asp-controller="Home"
                    asp-action="Index">
+
+                    <i class="bi bi-heart-pulse-fill me-1"></i>
 
                     Veterinaria
 
                 </a>
 
 
-                <!-- BOTÓN RESPONSIVE -->
+                <!-- MOBILE -->
+
                 <button class="navbar-toggler"
                         type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target="#mainNavbar">
+                        data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar"
+                        aria-expanded="false">
 
-                    <span class="navbar-toggler-icon">
-                    </span>
+                    <span class="navbar-toggler-icon"></span>
 
                 </button>
 
@@ -60,8 +75,13 @@
                 <div class="collapse navbar-collapse"
                      id="mainNavbar">
 
-                    <!-- MENÚ IZQUIERDO -->
+
+                    <!-- MENÚ -->
+
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+
+                        <!-- INICIO -->
 
                         <li class="nav-item">
 
@@ -69,6 +89,7 @@
                                asp-controller="Home"
                                asp-action="Index">
 
+                                <i class="bi bi-house-door me-1"></i>
                                 Inicio
 
                             </a>
@@ -76,56 +97,115 @@
                         </li>
 
 
-                        <!-- =================================================
-                         MENÚ DEL ADMINISTRADOR
-                         ================================================= -->
-                        @if (User.Identity?.IsAuthenticated == true
-                                                && User.IsInRole("Administrador"))
+                        <!-- ADMIN -->
+
+                        @if (User.Identity?.IsAuthenticated == true &&
+                             User.IsInRole("Administrador"))
                         {
+
                             <li class="nav-item">
 
                                 <a class="nav-link"
                                    asp-controller="Servicios"
                                    asp-action="Index">
 
+                                    <i class="bi bi-hospital me-1"></i>
                                     Servicios
 
                                 </a>
 
                             </li>
-                        }
 
 
-                        <!-- =================================================
-                         MENÚ DEL CLIENTE
-                         ================================================= -->
-                        @if (User.Identity?.IsAuthenticated == true
-                                                && User.IsInRole("Cliente"))
-                        {
                             <li class="nav-item">
 
                                 <a class="nav-link"
-                                   asp-area="Identity"
-                                   asp-page="/Account/Manage/Index">
+                                   asp-controller="Dashboard"
+                                   asp-action="Index">
 
-                                    Mi cuenta
+                                    <i class="bi bi-speedometer2 me-1"></i>
+                                    Dashboard
 
                                 </a>
 
                             </li>
 
-                            
-    @*
-        Más adelante:
-        Mascotas
-        Citas
-    *@
+
+                            <li class="nav-item">
+
+                                <a class="nav-link"
+                                   asp-controller="Citas"
+                                   asp-action="Index">
+
+                                    <i class="bi bi-calendar-check me-1"></i>
+                                    Citas
+
+                                </a>
+
+                            </li>
+
+
+                            <li class="nav-item">
+
+                                <a class="nav-link"
+                                   asp-controller="Reportes"
+                                   asp-action="Index">
+
+                                    <i class="bi bi-file-earmark-pdf me-1"></i>
+                                    Reportes
+
+                                </a>
+
+                            </li>
+
                         }
 
+
+                        <!-- CLIENTE -->
+
+                        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Cliente"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Mascotas"
+                                   asp-action="Index">
+                                    <i class="bi bi-heart-fill me-1"></i>
+                                    Mis Mascotas
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Citas"
+                                   asp-action="Index">
+                                    <i class="bi bi-calendar-heart me-1"></i>
+                                    Mis Citas
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Citas"
+                                   asp-action="Create">
+                                    <i class="bi bi-calendar-plus me-1"></i>
+                                    Nueva Cita
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-area="Identity"
+                                   asp-page="/Account/Manage/Index">
+                                    <i class="bi bi-person-circle me-1"></i>
+                                    Mi cuenta
+                                </a>
+                            </li>
+                        }
                     </ul>
 
 
-                    <!-- LOGIN / LOGOUT -->
+                    <!-- LOGIN -->
+
                     <partial name="_LoginPartial" />
 
                 </div>
@@ -137,6 +217,48 @@
     </header>
 
 
+    <!-- ALERTAS GLOBALES -->
+
+    <div class="container mt-3">
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow-sm">
+
+                <i class="bi bi-check-circle-fill me-2"></i>
+
+                @TempData["Success"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+
+            </div>
+        }
+
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm">
+
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+                @TempData["Error"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+
+            </div>
+        }
+
+    </div>
+
+
+    <!-- CONTENIDO -->
+
     <main role="main">
 
         @RenderBody()
@@ -144,35 +266,99 @@
     </main>
 
 
-    <footer class="border-top
-        text-muted
-        mt-5
-        py-4">
+    <!-- FOOTER -->
+
+    <footer class="bg-dark text-white mt-5 py-5">
 
         <div class="container">
 
-            &copy; @DateTime.Now.Year - Veterinaria
+            <div class="row g-4">
+
+                <div class="col-md-6">
+
+                    <h5 class="fw-bold">
+
+                        <i class="bi bi-heart-pulse-fill me-1"></i>
+
+                        Veterinaria
+
+                    </h5>
+
+                    <p class="text-white-50 mb-0">
+
+                        Cuidamos a quienes hacen más feliz
+                        tu vida.
+
+                    </p>
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <h6 class="fw-bold">
+                        Atención
+                    </h6>
+
+                    <p class="text-white-50 mb-1">
+                        Lunes - Viernes
+                    </p>
+
+                    <p class="text-white-50">
+                        08:00 - 20:00
+                    </p>
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <h6 class="fw-bold">
+                        Contacto
+                    </h6>
+
+                    <p class="text-white-50 mb-1">
+                        <i class="bi bi-telephone me-1"></i>
+                        Atención veterinaria
+                    </p>
+
+                    <p class="text-white-50">
+                        <i class="bi bi-envelope me-1"></i>
+                        contacto@veterinaria.com
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <hr class="border-secondary my-4" />
+
+
+            <div class="text-center text-white-50">
+
+                &copy; @DateTime.Now.Year - Veterinaria
+
+            </div>
 
         </div>
 
     </footer>
 
 
-    <script src="~/lib/jquery/dist/jquery.min.js">
-    </script>
+    <!-- JAVASCRIPT -->
 
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js">
-    </script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="~/js/site.js"
-            asp-append-version="true">
-    </script>
+            asp-append-version="true"></script>
 
 
     @await RenderSectionAsync(
         "Scripts",
-        required: false
-    )
+        required: false)
 
 </body>
 

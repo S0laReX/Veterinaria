@@ -1,0 +1,372 @@
+﻿@model IEnumerable<Veterinaria.Models.Cita>
+
+@{
+    ViewData["Title"] = User.IsInRole("Administrador")
+        ? "Gestión de Citas"
+        : "Mis Citas";
+}
+
+<div class="container py-5">
+
+    <!-- ENCABEZADO -->
+    <div class="d-flex flex-column flex-md-row
+        justify-content-between
+        align-items-md-center
+        gap-3 mb-5">
+
+        <div>
+
+            <span class="badge bg-success-subtle text-success mb-2">
+                <i class="bi bi-calendar-heart me-1"></i>
+                @(User.IsInRole("Administrador")
+                    ? "Administración"
+                    : "Mis reservas")
+            </span>
+
+            <h1 class="fw-bold mb-1">
+                @(User.IsInRole("Administrador")
+                    ? "Gestión de Citas"
+                    : "Mis Citas")
+            </h1>
+
+            <p class="text-muted mb-0">
+                @(User.IsInRole("Administrador")
+                    ? "Administra las citas de la veterinaria."
+                    : "Consulta y administra tus reservas.")
+            </p>
+
+        </div>
+
+
+        @if (User.IsInRole("Cliente"))
+        {
+            <a asp-action="Create"
+               class="btn btn-success btn-lg">
+
+                <i class="bi bi-calendar-plus me-1"></i>
+                Reservar Cita
+
+            </a>
+        }
+
+    </div>
+
+
+    <!-- ALERTAS -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm">
+
+            <i class="bi bi-check-circle-fill me-2"></i>
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm">
+
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    @if (!Model.Any())
+    {
+        <div class="card border-0 shadow-sm rounded-4">
+
+            <div class="card-body text-center py-5">
+
+                <div class="display-1 text-muted mb-3">
+                    <i class="bi bi-calendar-x"></i>
+                </div>
+
+                <h3 class="fw-bold">
+                    No hay citas registradas
+                </h3>
+
+                <p class="text-muted">
+                    Todavía no tienes citas registradas.
+                </p>
+
+                @if (User.IsInRole("Cliente"))
+                {
+                    <a asp-action="Create"
+                       class="btn btn-success">
+
+                        <i class="bi bi-calendar-plus me-1"></i>
+                        Reservar mi primera cita
+
+                    </a>
+                }
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            @foreach (var cita in Model)
+            {
+                string badgeClass =
+                    cita.Estado == "Atendida"
+                        ? "bg-success-subtle text-success"
+                        : cita.Estado == "Cancelada"
+                            ? "bg-danger-subtle text-danger"
+                            : "bg-warning-subtle text-warning-emphasis";
+
+                string iconoEstado =
+                    cita.Estado == "Atendida"
+                        ? "bi-check-circle-fill"
+                        : cita.Estado == "Cancelada"
+                            ? "bi-x-circle-fill"
+                            : "bi-clock-fill";
+
+                <div class="col-md-6 col-xl-4">
+
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                        <div class="card-body p-4">
+
+                            <div class="d-flex
+                                justify-content-between
+                                align-items-start
+                                mb-4">
+
+                                <div class="d-flex align-items-center">
+
+                                    <div class="rounded-circle
+                                        bg-success-subtle
+                                        text-success
+                                        p-3 me-3">
+
+                                        <i class="bi bi-heart-fill fs-4"></i>
+
+                                    </div>
+
+                                    <div>
+
+                                        <h5 class="fw-bold mb-0">
+                                            @(cita.Mascota?.Nombre ?? "Mascota")
+                                        </h5>
+
+                                        @if (User.IsInRole("Administrador"))
+                                        {
+                                            <small class="text-muted">
+                                                Cliente:
+                                                @(cita.Usuario?.Email ?? "N/D")
+                                            </small>
+                                        }
+
+                                    </div>
+
+                                </div>
+
+                                <span class="badge rounded-pill @badgeClass">
+
+                                    <i class="bi @iconoEstado me-1"></i>
+
+                                    @cita.Estado
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="mb-3">
+
+                                <div class="text-muted small">
+                                    SERVICIO
+                                </div>
+
+                                <div class="fw-semibold">
+                                    <i class="bi bi-hospital text-success me-1"></i>
+                                    @(cita.ServicioVeterinario?.Nombre
+                                        ?? "Servicio")
+                                </div>
+
+                            </div>
+
+
+                            <div class="mb-4">
+
+                                <div class="text-muted small">
+                                    FECHA Y HORA
+                                </div>
+
+                                <div class="fw-semibold">
+
+                                    <i class="bi bi-calendar3 text-primary me-1"></i>
+
+                                    @cita.FechaCita.ToString("dd/MM/yyyy")
+
+                                    <span class="mx-1">•</span>
+
+                                    @cita.FechaCita.ToString("HH:mm")
+
+                                </div>
+
+                            </div>
+
+
+                            <button type="button"
+                                    class="btn btn-outline-success w-100"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalCita_@cita.Id">
+
+                                <i class="bi bi-eye me-1"></i>
+                                Ver detalles
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MODAL -->
+
+                <div class="modal fade"
+                     id="modalCita_@cita.Id"
+                     tabindex="-1">
+
+                    <div class="modal-dialog modal-dialog-centered">
+
+                        <div class="modal-content border-0 rounded-4 shadow">
+
+                            <div class="modal-header bg-success text-white">
+
+                                <h5 class="modal-title">
+
+                                    <i class="bi bi-calendar-heart me-1"></i>
+                                    Detalles de la cita
+
+                                </h5>
+
+                                <button type="button"
+                                        class="btn-close btn-close-white"
+                                        data-bs-dismiss="modal">
+                                </button>
+
+                            </div>
+
+                            <div class="modal-body p-4">
+
+                                <div class="text-center mb-4">
+
+                                    <div class="display-4 text-success">
+                                        <i class="bi bi-heart-pulse-fill"></i>
+                                    </div>
+
+                                    <h4 class="fw-bold mt-2">
+                                        @(cita.Mascota?.Nombre ?? "Mascota")
+                                    </h4>
+
+                                </div>
+
+
+                                <div class="list-group list-group-flush">
+
+                                    <div class="list-group-item px-0">
+
+                                        <strong>Servicio:</strong>
+
+                                        <span class="float-end">
+                                            @(cita.ServicioVeterinario?.Nombre
+                                                ?? "N/D")
+                                        </span>
+
+                                    </div>
+
+                                    <div class="list-group-item px-0">
+
+                                        <strong>Fecha:</strong>
+
+                                        <span class="float-end">
+                                            @cita.FechaCita.ToString("dd/MM/yyyy")
+                                        </span>
+
+                                    </div>
+
+                                    <div class="list-group-item px-0">
+
+                                        <strong>Hora:</strong>
+
+                                        <span class="float-end">
+                                            @cita.FechaCita.ToString("HH:mm")
+                                        </span>
+
+                                    </div>
+
+                                    <div class="list-group-item px-0">
+
+                                        <strong>Estado:</strong>
+
+                                        <span class="float-end">
+                                            <span class="badge @badgeClass">
+                                                @cita.Estado
+                                            </span>
+                                        </span>
+
+                                    </div>
+
+                                    @if (User.IsInRole("Administrador"))
+                                    {
+                                        <div class="list-group-item px-0">
+
+                                            <strong>Cliente:</strong>
+
+                                            <span class="float-end">
+                                                @(cita.Usuario?.Email ?? "N/D")
+                                            </span>
+
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer">
+
+                                <button type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal">
+
+                                    Cerrar
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>

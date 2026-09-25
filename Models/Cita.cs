@@ -6,8 +6,20 @@ namespace Veterinaria.Models
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "La fecha de la cita es obligatoria.")]
-        [Display(Name = "Fecha de la cita")]
+        [Required(ErrorMessage = "Debe seleccionar una mascota.")]
+        [Display(Name = "Mascota")]
+        public int MascotaId { get; set; }
+
+        public Mascota? Mascota { get; set; }
+
+        [Required(ErrorMessage = "Debe seleccionar un servicio.")]
+        [Display(Name = "Servicio")]
+        public int ServicioVeterinarioId { get; set; }
+
+        public ServicioVeterinario? ServicioVeterinario { get; set; }
+        [Required(ErrorMessage = "Debe seleccionar una fecha y hora.")]
+        [FechaCitaValida(ErrorMessage = "La fecha de la cita no puede ser anterior a la fecha y hora actual.")]
+        [Display(Name = "Fecha y hora")]
         [DataType(DataType.DateTime)]
         public DateTime FechaCita { get; set; }
 
@@ -19,15 +31,8 @@ namespace Veterinaria.Models
         public string Estado { get; set; } = "Pendiente";
 
         [Required]
-        [Display(Name = "Mascota")]
-        public int MascotaId { get; set; }
+        public string UsuarioId { get; set; } = string.Empty;
 
-        public Mascota Mascota { get; set; } = null!;
-
-        [Required]
-        [Display(Name = "Servicio veterinario")]
-        public int ServicioVeterinarioId { get; set; }
-
-        public ServicioVeterinario ServicioVeterinario { get; set; } = null!;
+        public ApplicationUser? Usuario { get; set; }
     }
 }

@@ -1,0 +1,227 @@
+﻿@model Veterinaria.Models.Mascota
+
+@{
+    ViewData["Title"] = "Editar Mascota";
+}
+
+<div class="container py-4">
+
+    ```
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow border-0">
+
+                <!-- ENCABEZADO -->
+                <div class="card-header bg-warning text-dark">
+
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil-square"></i>
+                        Editar Mascota
+                    </h4>
+
+                </div>
+
+                <!-- CONTENIDO -->
+                <div class="card-body p-4">
+
+                    <form asp-action="Edit" method="post">
+
+                        <!-- ID OCULTO -->
+                        <input type="hidden" asp-for="Id" />
+
+                        <!-- RESUMEN DE VALIDACIONES -->
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger">
+                        </div>
+
+                        <div class="row">
+
+                            <!-- NOMBRE -->
+                            <div class="col-md-6 mb-3">
+
+                                <label asp-for="Nombre"
+                                       class="form-label fw-semibold">
+                                </label>
+
+                                <input asp-for="Nombre"
+                                       class="form-control"
+                                       placeholder="Ej. Max" />
+
+                                <span asp-validation-for="Nombre"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- ESPECIE -->
+                            <div class="col-md-6 mb-3">
+
+                                <label asp-for="Especie"
+                                       class="form-label fw-semibold">
+                                </label>
+
+                                <select asp-for="Especie"
+                                        class="form-select">
+
+                                    <option value="">
+                                        Seleccionar especie
+                                    </option>
+
+                                    <option value="Perro">
+                                        Perro
+                                    </option>
+
+                                    <option value="Gato">
+                                        Gato
+                                    </option>
+
+                                    <option value="Ave">
+                                        Ave
+                                    </option>
+
+                                    <option value="Conejo">
+                                        Conejo
+                                    </option>
+
+                                    <option value="Otro">
+                                        Otro
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="Especie"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- RAZA -->
+                            <div class="col-md-6 mb-3">
+
+                                <label asp-for="Raza"
+                                       class="form-label fw-semibold">
+                                </label>
+
+                                <input asp-for="Raza"
+                                       class="form-control"
+                                       placeholder="Ej. Labrador" />
+
+                                <span asp-validation-for="Raza"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- EDAD -->
+                            <div class="col-md-3 mb-3">
+
+                                <label asp-for="Edad"
+                                       class="form-label fw-semibold">
+                                </label>
+
+                                <input asp-for="Edad"
+                                       type="number"
+                                       min="0"
+                                       max="100"
+                                       class="form-control" />
+
+                                <span asp-validation-for="Edad"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- SEXO -->
+                            <div class="col-md-3 mb-3">
+
+                                <label asp-for="Sexo"
+                                       class="form-label fw-semibold">
+                                </label>
+
+                                <select asp-for="Sexo"
+                                        class="form-select">
+
+                                    <option value="">
+                                        Seleccionar
+                                    </option>
+
+                                    <option value="Macho">
+                                        Macho
+                                    </option>
+
+                                    <option value="Hembra">
+                                        Hembra
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="Sexo"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- OBSERVACIONES -->
+                            <div class="col-12 mb-4">
+
+                                <label asp-for="Observaciones"
+                                       class="form-label fw-semibold">
+                                </label>
+
+                                <textarea asp-for="Observaciones"
+                                          class="form-control"
+                                          rows="4"
+                                          placeholder="Información adicional sobre la mascota...">
+                            </textarea>
+
+                                <span asp-validation-for="Observaciones"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <!-- BOTONES -->
+                        <div class="d-flex justify-content-between">
+
+                            <a asp-action="Index"
+                               class="btn btn-secondary">
+
+                                <i class="bi bi-arrow-left"></i>
+                                Volver
+
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-warning">
+
+                                <i class="bi bi-save"></i>
+                                Guardar Cambios
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    ```
+
+</div>
+
+@section Scripts {
+
+    ```
+    <partial name="_ValidationScriptsPartial" />
+    ```
+
+}

@@ -1,8 +1,581 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<Veterinaria.Models.Cita>
+
+@{
+    ViewData["Title"] = User.IsInRole("Administrador")
+        ? "Gestión de Citas"
+        : "Mis Citas";
+
+    var citas = Model ?? Enumerable.Empty<Veterinaria.Models.Cita>();
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-5">
+
+    <!-- =========================================================
+         ENCABEZADO
+         ========================================================= -->
+
+    <div class="d-flex flex-column flex-md-row
+                justify-content-between
+                align-items-md-center
+                gap-3 mb-5">
+
+        <div>
+
+            <span class="badge bg-success-subtle text-success mb-2 px-3 py-2">
+
+                <i class="bi bi-calendar-heart me-1"></i>
+
+                @(User.IsInRole("Administrador")
+                    ? "Administración"
+                    : "Mis reservas")
+
+            </span>
+
+            <h1 class="fw-bold mb-1">
+
+                @(User.IsInRole("Administrador")
+                    ? "Gestión de Citas"
+                    : "Mis Citas")
+
+            </h1>
+
+            <p class="text-muted mb-0">
+
+                @(User.IsInRole("Administrador")
+                    ? "Administra y controla las citas de la veterinaria."
+                    : "Consulta y administra las citas de tus mascotas.")
+
+            </p>
+
+        </div>
+
+
+        @if (User.IsInRole("Cliente"))
+        {
+            <a asp-action="Create"
+               class="btn btn-success btn-lg rounded-3 shadow-sm">
+
+                <i class="bi bi-calendar-plus me-2"></i>
+
+                Reservar Cita
+
+            </a>
+        }
+
+    </div>
+
+
+    <!-- =========================================================
+         ALERTA ÉXITO
+         ========================================================= -->
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3"
+             role="alert">
+
+            <i class="bi bi-check-circle-fill me-2"></i>
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- =========================================================
+         ALERTA ERROR
+         ========================================================= -->
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3"
+             role="alert">
+
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- =========================================================
+         CONTADOR DE CITAS
+         ========================================================= -->
+
+    <div class="row mb-4">
+
+        <div class="col-md-4">
+
+            <div class="card border-0 shadow-sm rounded-4">
+
+                <div class="card-body d-flex align-items-center">
+
+                    <div class="rounded-circle
+                                bg-success-subtle
+                                text-success
+                                p-3 me-3">
+
+                        <i class="bi bi-calendar-check fs-4"></i>
+
+                    </div>
+
+                    <div>
+
+                        <small class="text-muted">
+                            @(User.IsInRole("Administrador")
+                                ? "Citas registradas"
+                                : "Mis citas")
+                        </small>
+
+                        <h3 class="fw-bold mb-0">
+                            @citas.Count()
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         SIN CITAS
+         ========================================================= -->
+
+    @if (!citas.Any())
+    {
+        <div class="card border-0 shadow-sm rounded-4">
+
+            <div class="card-body text-center py-5">
+
+                <div class="display-1 text-success mb-3">
+
+                    <i class="bi bi-calendar-heart"></i>
+
+                </div>
+
+                <h3 class="fw-bold">
+                    No hay citas registradas
+                </h3>
+
+                <p class="text-muted mb-4">
+
+                    @(User.IsInRole("Administrador")
+                        ? "Todavía no existen citas registradas en el sistema."
+                        : "Todavía no tienes citas registradas para tus mascotas.")
+
+                </p>
+
+
+                @if (User.IsInRole("Cliente"))
+                {
+                    <a asp-action="Create"
+                       class="btn btn-success btn-lg rounded-3">
+
+                        <i class="bi bi-calendar-plus me-2"></i>
+
+                        Reservar mi primera cita
+
+                    </a>
+                }
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <!-- =====================================================
+             LISTADO DE CITAS
+             ===================================================== -->
+
+        <div class="row g-4">
+
+            @foreach (var cita in citas)
+            {
+                string badgeClass =
+                    cita.Estado == "Atendida"
+                        ? "bg-success-subtle text-success"
+                        : cita.Estado == "Cancelada"
+                            ? "bg-danger-subtle text-danger"
+                            : "bg-warning-subtle text-warning-emphasis";
+
+                string iconoEstado =
+                    cita.Estado == "Atendida"
+                        ? "bi-check-circle-fill"
+                        : cita.Estado == "Cancelada"
+                            ? "bi-x-circle-fill"
+                            : "bi-clock-fill";
+
+
+                <div class="col-md-6 col-xl-4">
+
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                        <div class="card-body p-4">
+
+                            <!-- CABECERA TARJETA -->
+
+                            <div class="d-flex
+                                        justify-content-between
+                                        align-items-start
+                                        mb-4">
+
+                                <div class="d-flex align-items-center">
+
+                                    <div class="rounded-circle
+                                                bg-success-subtle
+                                                text-success
+                                                p-3 me-3">
+
+                                        <i class="bi bi-heart-fill fs-4"></i>
+
+                                    </div>
+
+                                    <div>
+
+                                        <h5 class="fw-bold mb-0">
+
+                                            @(cita.Mascota?.Nombre
+                                                ?? "Mascota")
+
+                                        </h5>
+
+
+                                        @if (User.IsInRole("Administrador"))
+                                        {
+                                            <small class="text-muted">
+
+                                                Cliente:
+
+                                                @(cita.Usuario?.Email
+                                                    ?? "N/D")
+
+                                            </small>
+                                        }
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- ESTADO -->
+
+                                <span class="badge rounded-pill @badgeClass">
+
+                                    <i class="bi @iconoEstado me-1"></i>
+
+                                    @(cita.Estado ?? "Pendiente")
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- SERVICIO -->
+
+                            <div class="mb-3">
+
+                                <div class="text-muted small fw-semibold">
+                                    SERVICIO
+                                </div>
+
+                                <div class="fw-semibold">
+
+                                    <i class="bi bi-hospital text-success me-1"></i>
+
+                                    @(cita.ServicioVeterinario?.Nombre
+                                        ?? "Servicio no disponible")
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- FECHA -->
+
+                            <div class="mb-4">
+
+                                <div class="text-muted small fw-semibold">
+                                    FECHA Y HORA
+                                </div>
+
+                                <div class="fw-semibold">
+
+                                    <i class="bi bi-calendar3 text-primary me-1"></i>
+
+                                    @cita.FechaCita.ToString("dd/MM/yyyy")
+
+                                    <span class="mx-1">•</span>
+
+                                    @cita.FechaCita.ToString("HH:mm")
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- BOTÓN DETALLES -->
+
+                            <button type="button"
+                                    class="btn btn-outline-success w-100 rounded-3"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalCita_@cita.Id">
+
+                                <i class="bi bi-eye me-1"></i>
+
+                                Ver detalles
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     MODAL DETALLES
+                     ================================================= -->
+
+                <div class="modal fade"
+                     id="modalCita_@cita.Id"
+                     tabindex="-1"
+                     aria-labelledby="modalLabel_@cita.Id"
+                     aria-hidden="true">
+
+                    <div class="modal-dialog modal-dialog-centered">
+
+                        <div class="modal-content border-0 rounded-4 shadow">
+
+                            <!-- MODAL HEADER -->
+
+                            <div class="modal-header bg-success text-white">
+
+                                <h5 class="modal-title"
+                                    id="modalLabel_@cita.Id">
+
+                                    <i class="bi bi-calendar-heart me-2"></i>
+
+                                    Detalles de la cita
+
+                                </h5>
+
+                                <button type="button"
+                                        class="btn-close btn-close-white"
+                                        data-bs-dismiss="modal">
+                                </button>
+
+                            </div>
+
+
+                            <!-- MODAL BODY -->
+
+                            <div class="modal-body p-4">
+
+                                <div class="text-center mb-4">
+
+                                    <div class="display-4 text-success">
+
+                                        <i class="bi bi-heart-pulse-fill"></i>
+
+                                    </div>
+
+                                    <h4 class="fw-bold mt-2">
+
+                                        @(cita.Mascota?.Nombre
+                                            ?? "Mascota")
+
+                                    </h4>
+
+                                    <span class="badge @badgeClass">
+
+                                        <i class="bi @iconoEstado me-1"></i>
+
+                                        @(cita.Estado ?? "Pendiente")
+
+                                    </span>
+
+                                </div>
+
+
+                                <!-- INFORMACIÓN -->
+
+                                <div class="list-group list-group-flush">
+
+                                    <!-- SERVICIO -->
+
+                                    <div class="list-group-item px-0">
+
+                                        <div class="d-flex
+                                                    justify-content-between
+                                                    gap-3">
+
+                                            <strong>
+                                                <i class="bi bi-hospital me-2 text-success"></i>
+                                                Servicio
+                                            </strong>
+
+                                            <span class="text-end">
+
+                                                @(cita.ServicioVeterinario?.Nombre
+                                                    ?? "N/D")
+
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- FECHA -->
+
+                                    <div class="list-group-item px-0">
+
+                                        <div class="d-flex
+                                                    justify-content-between
+                                                    gap-3">
+
+                                            <strong>
+                                                <i class="bi bi-calendar3 me-2 text-primary"></i>
+                                                Fecha
+                                            </strong>
+
+                                            <span>
+
+                                                @cita.FechaCita.ToString("dd/MM/yyyy")
+
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- HORA -->
+
+                                    <div class="list-group-item px-0">
+
+                                        <div class="d-flex
+                                                    justify-content-between
+                                                    gap-3">
+
+                                            <strong>
+                                                <i class="bi bi-clock me-2 text-primary"></i>
+                                                Hora
+                                            </strong>
+
+                                            <span>
+
+                                                @cita.FechaCita.ToString("HH:mm")
+
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- ESTADO -->
+
+                                    <div class="list-group-item px-0">
+
+                                        <div class="d-flex
+                                                    justify-content-between
+                                                    gap-3">
+
+                                            <strong>
+                                                <i class="bi bi-info-circle me-2 text-warning"></i>
+                                                Estado
+                                            </strong>
+
+                                            <span>
+
+                                                <span class="badge @badgeClass">
+
+                                                    @(cita.Estado ?? "Pendiente")
+
+                                                </span>
+
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- CLIENTE -->
+
+                                    @if (User.IsInRole("Administrador"))
+                                    {
+                                        <div class="list-group-item px-0">
+
+                                            <div class="d-flex
+                                                        justify-content-between
+                                                        gap-3">
+
+                                                <strong>
+                                                    <i class="bi bi-person me-2 text-primary"></i>
+                                                    Cliente
+                                                </strong>
+
+                                                <span class="text-end">
+
+                                                    @(cita.Usuario?.Email
+                                                        ?? "N/D")
+
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- MODAL FOOTER -->
+
+                            <div class="modal-footer">
+
+                                <button type="button"
+                                        class="btn btn-secondary rounded-3"
+                                        data-bs-dismiss="modal">
+
+                                    <i class="bi bi-x-lg me-1"></i>
+
+                                    Cerrar
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
 </div>

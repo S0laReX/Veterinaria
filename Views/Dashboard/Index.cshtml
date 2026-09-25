@@ -1,0 +1,511 @@
+﻿@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Dashboard";
+
+var datosMeses =
+    ViewBag.CitasPorMes as int[]
+    ?? new int[12];
+
+    var citasRecientes =
+        ViewBag.CitasRecientes
+        as IEnumerable<Veterinaria.Models.Cita>
+        ?? Enumerable.Empty<Veterinaria.Models.Cita>();
+
+}
+
+<div class="container py-5">
+
+    ```
+    <!-- ENCABEZADO -->
+
+    <div class="mb-5">
+
+        <span class="badge bg-success-subtle text-success mb-2">
+
+            <i class="bi bi-speedometer2 me-1"></i>
+
+            Administración
+
+        </span>
+
+        <h1 class="fw-bold">
+            Dashboard
+        </h1>
+
+        <p class="text-muted">
+            Resumen general de la actividad de la veterinaria.
+        </p>
+
+    </div>
+
+
+    <!-- TARJETAS -->
+
+    <div class="row g-4 mb-5">
+
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex
+                        justify-content-between
+                        align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                CLIENTES
+                            </small>
+
+                            <h2 class="fw-bold mb-0">
+                                @ViewBag.TotalClientes
+                            </h2>
+
+                        </div>
+
+                        <div class="rounded-circle
+                            bg-primary-subtle
+                            text-primary
+                            p-3">
+
+                            <i class="bi bi-people-fill fs-3"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex
+                        justify-content-between
+                        align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                MASCOTAS
+                            </small>
+
+                            <h2 class="fw-bold mb-0">
+                                @ViewBag.TotalMascotas
+                            </h2>
+
+                        </div>
+
+                        <div class="rounded-circle
+                            bg-danger-subtle
+                            text-danger
+                            p-3">
+
+                            <i class="bi bi-heart-fill fs-3"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex
+                        justify-content-between
+                        align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                CITAS
+                            </small>
+
+                            <h2 class="fw-bold mb-0">
+                                @ViewBag.TotalCitas
+                            </h2>
+
+                        </div>
+
+                        <div class="rounded-circle
+                            bg-success-subtle
+                            text-success
+                            p-3">
+
+                            <i class="bi bi-calendar-check fs-3"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex
+                        justify-content-between
+                        align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                SERVICIOS
+                            </small>
+
+                            <h2 class="fw-bold mb-0">
+                                @ViewBag.TotalServicios
+                            </h2>
+
+                        </div>
+
+                        <div class="rounded-circle
+                            bg-warning-subtle
+                            text-warning
+                            p-3">
+
+                            <i class="bi bi-hospital fs-3"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ESTADOS -->
+
+    <div class="row g-4 mb-5">
+
+        <div class="col-md-4">
+
+            <div class="card border-0 shadow-sm rounded-4">
+
+                <div class="card-body p-4">
+
+                    <div class="text-warning fs-2">
+                        <i class="bi bi-clock-fill"></i>
+                    </div>
+
+                    <h6 class="text-muted mt-2">
+                        Pendientes
+                    </h6>
+
+                    <h3 class="fw-bold">
+                        @ViewBag.CitasPendientes
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card border-0 shadow-sm rounded-4">
+
+                <div class="card-body p-4">
+
+                    <div class="text-success fs-2">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+
+                    <h6 class="text-muted mt-2">
+                        Atendidas
+                    </h6>
+
+                    <h3 class="fw-bold">
+                        @ViewBag.CitasAtendidas
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card border-0 shadow-sm rounded-4">
+
+                <div class="card-body p-4">
+
+                    <div class="text-danger fs-2">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </div>
+
+                    <h6 class="text-muted mt-2">
+                        Canceladas
+                    </h6>
+
+                    <h3 class="fw-bold">
+                        @ViewBag.CitasCanceladas
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- GRÁFICO -->
+
+    <div class="card border-0 shadow-sm rounded-4 mb-5">
+
+        <div class="card-body p-4">
+
+            <h5 class="fw-bold">
+                <i class="bi bi-bar-chart-fill text-success me-1"></i>
+                Citas durante @DateTime.Now.Year
+            </h5>
+
+            <p class="text-muted">
+                Cantidad de citas registradas por mes.
+            </p>
+
+            <div style="height:350px;">
+
+                <canvas id="citasChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CITAS RECIENTES -->
+
+    <div class="card border-0 shadow-sm rounded-4">
+
+        <div class="card-body p-4">
+
+            <div class="d-flex
+                justify-content-between
+                align-items-center
+                mb-4">
+
+                <h5 class="fw-bold mb-0">
+
+                    <i class="bi bi-calendar-event text-success me-1"></i>
+
+                    Citas recientes
+
+                </h5>
+
+                <a asp-controller="Citas"
+                   asp-action="Index"
+                   class="btn btn-outline-success btn-sm">
+
+                    Ver todas
+
+                </a>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="table align-middle">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Mascota</th>
+
+                            <th>Servicio</th>
+
+                            <th>Fecha</th>
+
+                            <th>Estado</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var cita in citasRecientes)
+                        {
+                            <tr>
+
+                                <td class="fw-semibold">
+
+                                    <i class="bi bi-heart-fill text-danger me-1"></i>
+
+                                    @(cita.Mascota?.Nombre ?? "N/D")
+
+                                </td>
+
+                                <td>
+                                    @(cita.ServicioVeterinario?.Nombre ?? "N/D")
+                                </td>
+
+                                <td>
+
+                                    @cita.FechaCita.ToString("dd/MM/yyyy HH:mm")
+
+                                </td>
+
+                                <td>
+
+                                    @if (cita.Estado == "Atendida")
+                                    {
+                                        <span class="badge bg-success">
+                                            Atendida
+                                        </span>
+                                    }
+                                    else if (cita.Estado == "Cancelada")
+                                    {
+                                        <span class="badge bg-danger">
+                                            Cancelada
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            Pendiente
+                                        </span>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+    ```
+
+</div>
+
+@section Scripts {
+
+    ```
+    <!-- Chart.js -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <script>
+
+        const datosMeses =
+        @Html.Raw(JsonSerializer.Serialize(datosMeses));
+
+
+        const ctx =
+        document
+        .getElementById("citasChart");
+
+
+        new Chart(ctx, {
+
+        type: "bar",
+
+        data: {
+
+        labels: [
+        "Ene",
+        "Feb",
+        "Mar",
+        "Abr",
+        "May",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dic"
+        ],
+
+        datasets: [
+
+        {
+        label: "Citas",
+
+        data: datosMeses,
+
+        borderWidth: 1
+        }
+
+        ]
+
+        },
+
+        options: {
+
+        responsive: true,
+
+        maintainAspectRatio: false,
+
+        scales: {
+
+        y: {
+
+        beginAtZero: true,
+
+        ticks: {
+
+        precision: 0
+
+        }
+
+        }
+
+        }
+
+        }
+
+        });
+
+    </script>
+}

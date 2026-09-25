@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Veterinaria.Data;
 
@@ -11,9 +12,11 @@ using Veterinaria.Data;
 namespace Veterinaria.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260924222044_AgregarMascotasYCitas")]
+    partial class AgregarMascotasYCitas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -253,17 +256,11 @@ namespace Veterinaria.Data.Migrations
                     b.Property<int>("ServicioVeterinarioId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UsuarioId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("MascotaId");
 
                     b.HasIndex("ServicioVeterinarioId");
-
-                    b.HasIndex("UsuarioId");
 
                     b.ToTable("Citas", t =>
                         {
@@ -400,7 +397,7 @@ namespace Veterinaria.Data.Migrations
                     b.HasOne("Veterinaria.Models.Mascota", "Mascota")
                         .WithMany("Citas")
                         .HasForeignKey("MascotaId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Veterinaria.Models.ServicioVeterinario", "ServicioVeterinario")
@@ -409,17 +406,9 @@ namespace Veterinaria.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Veterinaria.Models.ApplicationUser", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Mascota");
 
                     b.Navigation("ServicioVeterinario");
-
-                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("Veterinaria.Models.Mascota", b =>
@@ -427,7 +416,7 @@ namespace Veterinaria.Data.Migrations
                     b.HasOne("Veterinaria.Models.ApplicationUser", "Usuario")
                         .WithMany("Mascotas")
                         .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Usuario");
