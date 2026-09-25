@@ -1,0 +1,54 @@
+@model FiltrosListado
+@{
+    var tipo = (string?)ViewBag.TipoListado ?? "servicios";
+    var esCita = tipo == "citas";
+    var esMascota = tipo == "mascotas";
+    var ordenes = esCita
+        ? new[] { ("fecha-desc", "Más recientes"), ("fecha-asc", "Primero las más antiguas"), ("precio-asc", "Menor precio"), ("precio-desc", "Mayor precio") }
+        : esMascota
+            ? new[] { ("nombre", "Nombre: A a Z"), ("nombre-desc", "Nombre: Z a A"), ("edad-asc", "Menor edad"), ("edad-desc", "Mayor edad") }
+            : new[] { ("nombre", "Nombre: A a Z"), ("nombre-desc", "Nombre: Z a A"), ("precio-asc", "Menor precio"), ("precio-desc", "Mayor precio") };
+    var sugerencia = esCita ? (User.IsInRole("Administrador") ? "Mascota, servicio o cliente" : "Mascota o servicio") : esMascota ? "Nombre o raza" : "Nombre o descripción";
+}
+<form method="get" action="@Context.Request.Path" class="filter-panel" aria-label="Filtrar @tipo">
+    <div class="filter-heading"><strong>Encuentra lo que buscas</strong><span>Combina los filtros a tu gusto.</span></div>
+    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+    <div class="row g-3 align-items-end">
+        <div class="col-12 col-md-6 col-xl-4">
+            <label asp-for="Buscar" class="form-label">Buscar</label>
+            <input asp-for="Buscar" class="form-control" type="search" placeholder="@sugerencia" maxlength="100" />
+        </div>
+        @if (esCita)
+        {
+            <div class="col-12 col-md-6 col-xl-2">
+                <label asp-for="Estado" class="form-label">Estado</label>
+                <select asp-for="Estado" class="form-select"><option value="">Todos los estados</option><option>Pendiente</option><option>Atendida</option><option>Cancelada</option></select>
+            </div>
+            <div class="col-6 col-md-3 col-xl-2"><label asp-for="Desde" class="form-label">Desde</label><input asp-for="Desde" type="date" class="form-control" /></div>
+            <div class="col-6 col-md-3 col-xl-2"><label asp-for="Hasta" class="form-label">Hasta</label><input asp-for="Hasta" type="date" class="form-control" /></div>
+        }
+        else if (esMascota)
+        {
+            <div class="col-6 col-md-3 col-xl-3">
+                <label asp-for="Especie" class="form-label">Especie</label>
+                <select asp-for="Especie" class="form-select"><option value="">Todas las especies</option>
+                    @foreach (var especie in (IEnumerable<string>?)ViewBag.Especies ?? []) { <option value="@especie">@especie</option> }
+                </select>
+            </div>
+            <div class="col-6 col-md-3 col-xl-2"><label asp-for="Sexo" class="form-label">Sexo</label><select asp-for="Sexo" class="form-select"><option value="">Todos</option><option>Macho</option><option>Hembra</option></select></div>
+        }
+        else
+        {
+            <div class="col-6 col-md-3 col-xl-2"><label asp-for="PrecioMin" class="form-label">Desde (Bs)</label><input asp-for="PrecioMin" type="number" min="0" max="10000" step="0.01" class="form-control" placeholder="0.00" /></div>
+            <div class="col-6 col-md-3 col-xl-2"><label asp-for="PrecioMax" class="form-label">Hasta (Bs)</label><input asp-for="PrecioMax" type="number" min="0" max="10000" step="0.01" class="form-control" placeholder="Sin límite" /></div>
+        }
+        <div class="col-12 col-md-6 col-xl">
+            <label asp-for="Orden" class="form-label">Ordenar por</label>
+            <select asp-for="Orden" class="form-select">@foreach (var (valor, texto) in ordenes) { <option value="@valor">@texto</option> }</select>
+        </div>
+    </div>
+    <div class="filter-footer">
+        <span class="result-count" role="status">@ViewBag.Resultados @(ViewBag.Resultados == 1 ? "resultado" : "resultados")</span>
+        <div class="d-flex gap-2 align-items-center"><a href="@Context.Request.Path" class="btn btn-link">Limpiar filtros</a><button type="submit" class="btn btn-success">Aplicar filtros</button></div>
+    </div>
+</form>

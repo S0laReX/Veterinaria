@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Veterinaria.Models
 {
@@ -20,7 +20,7 @@ namespace Veterinaria.Models
         [Required(ErrorMessage = "Debe seleccionar una fecha y hora.")]
         [FechaCitaValida(ErrorMessage = "La fecha de la cita no puede ser anterior a la fecha y hora actual.")]
         [Display(Name = "Fecha y hora")]
-        [DataType(DataType.DateTime)]
+        [DataType(DataType.Date)]
         public DateTime FechaCita { get; set; }
 
         [Required(ErrorMessage = "El estado es obligatorio.")]

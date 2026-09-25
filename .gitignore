@@ -427,3 +427,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Resultados locales de verificación (base de pruebas)
+/tmp/

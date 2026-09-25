@@ -1,4 +1,4 @@
-﻿@model Veterinaria.Models.ServicioVeterinario
+@model Veterinaria.Models.ServicioVeterinario
 
 <div>
 
@@ -36,7 +36,7 @@
         </dt>
 
         <dd class="col-sm-8 fw-semibold">
-            @Model.Precio.ToString("N2")
+            @Moneda.Bolivianos(Model.Precio)
         </dd>
 
     </dl>

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,7 +8,7 @@ using Veterinaria.Models;
 
 namespace Veterinaria.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Administrador,Cliente")]
     public class CitasController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -26,13 +26,31 @@ namespace Veterinaria.Controllers
         // LISTADO
         // =====================================================
 
-        public async Task<IActionResult> Index() { 
+        public async Task<IActionResult> Index([FromQuery] FiltrosListado filtros)
+        {
             var usuario = await _userManager.GetUserAsync(User);
             if (usuario == null) return Challenge();
-            IQueryable<Cita> consulta = _context.Citas.Include(c => c.Mascota).Include(c => c.ServicioVeterinario).Include(c => c.Usuario);
-            if (User.IsInRole("Cliente")) { consulta = consulta.Where(c => c.UsuarioId == usuario.Id);
-            }
-            var citas = await consulta.OrderByDescending(c => c.FechaCita).ToListAsync(); return View(citas);
+            var admin = User.IsInRole("Administrador");
+            IQueryable<Cita> query = _context.Citas.AsNoTracking()
+                .Include(c => c.Mascota).Include(c => c.ServicioVeterinario).Include(c => c.Usuario);
+            if (!admin) query = query.Where(c => c.UsuarioId == usuario.Id);
+            var texto = filtros.Buscar?.Trim();
+            if (!string.IsNullOrWhiteSpace(texto))
+                query = query.Where(c => c.Mascota!.Nombre.Contains(texto) || c.ServicioVeterinario!.Nombre.Contains(texto)
+                    || (admin && (c.Usuario!.NombreCompleto.Contains(texto) || c.Usuario.Email!.Contains(texto))));
+            if (!string.IsNullOrEmpty(filtros.Estado)) query = query.Where(c => c.Estado == filtros.Estado);
+            if (filtros.Desde.HasValue) query = query.Where(c => c.FechaCita >= filtros.Desde.Value.Date);
+            if (filtros.Hasta.HasValue) query = query.Where(c => c.FechaCita.Date <= filtros.Hasta.Value.Date);
+            query = filtros.Orden switch
+            {
+                "fecha-asc" => query.OrderBy(c => c.FechaCita).ThenBy(c => c.Id),
+                "precio-asc" => query.OrderBy(c => c.ServicioVeterinario!.Precio).ThenBy(c => c.FechaCita),
+                "precio-desc" => query.OrderByDescending(c => c.ServicioVeterinario!.Precio).ThenBy(c => c.FechaCita),
+                _ => query.OrderByDescending(c => c.FechaCita).ThenByDescending(c => c.Id)
+            };
+            ViewBag.Filtros = filtros;
+            ViewBag.TipoListado = "citas";
+            return View(await query.ToListAsync());
         }
 
         // =====================================================
@@ -40,7 +58,7 @@ namespace Veterinaria.Controllers
         // =====================================================
 
         [Authorize(Roles = "Cliente")]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int? servicioId)
         {
             var usuario = await _userManager.GetUserAsync(User);
 
@@ -65,14 +83,9 @@ namespace Veterinaria.Controllers
                 "Id",
                 "Nombre");
 
-            ViewBag.Servicios = new SelectList(
-                await _context.ServiciosVeterinarios
-                    .OrderBy(s => s.Nombre)
-                    .ToListAsync(),
-                "Id",
-                "Nombre");
+            await CargarServiciosAsync(servicioId);
 
-            return View();
+            return View(new Cita { ServicioVeterinarioId = servicioId ?? 0 });
         }
 
         // =====================================================
@@ -82,7 +95,7 @@ namespace Veterinaria.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Cliente")]
-        public async Task<IActionResult> Create(Cita cita)
+        public async Task<IActionResult> Create([Bind("MascotaId,ServicioVeterinarioId,FechaCita")] Cita cita)
         {
             var usuario = await _userManager.GetUserAsync(User);
 
@@ -122,6 +135,7 @@ namespace Veterinaria.Controllers
                     "El servicio seleccionado no existe.");
             }
 
+            ModelState.Remove(nameof(Cita.UsuarioId));
             if (!ModelState.IsValid)
             {
                 ViewBag.Mascotas = new SelectList(
@@ -132,13 +146,7 @@ namespace Veterinaria.Controllers
                     "Nombre",
                     cita.MascotaId);
 
-                ViewBag.Servicios = new SelectList(
-                    await _context.ServiciosVeterinarios
-                        .OrderBy(s => s.Nombre)
-                        .ToListAsync(),
-                    "Id",
-                    "Nombre",
-                    cita.ServicioVeterinarioId);
+                await CargarServiciosAsync(cita.ServicioVeterinarioId);
 
                 return View(cita);
             }
@@ -156,6 +164,16 @@ namespace Veterinaria.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        private async Task CargarServiciosAsync(int? seleccionado)
+        {
+            var servicios = await _context.ServiciosVeterinarios.AsNoTracking().OrderBy(s => s.Nombre).ToListAsync();
+            ViewBag.ServiciosDisponibles = servicios;
+            ViewBag.Servicios = new SelectList(servicios.Select(s => new
+            {
+                s.Id, Etiqueta = $"{s.Nombre} · {Moneda.Bolivianos(s.Precio)}"
+            }), "Id", "Etiqueta", seleccionado);
+        }
+
         // =====================================================
         // ADMINISTRADOR - CAMBIAR ESTADO
         // =====================================================
@@ -165,7 +183,7 @@ namespace Veterinaria.Controllers
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> CambiarEstado(
             int id,
-            string estado)
+            string estado, string? returnUrl = null)
         {
             var estadosPermitidos = new[]
             {
@@ -191,9 +209,8 @@ namespace Veterinaria.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] =
-                "El estado de la cita fue actualizado.";
-
+            TempData["Success"] = "El estado de la cita fue actualizado.";
+            if (Url.IsLocalUrl(returnUrl)) return LocalRedirect(returnUrl!);
             return RedirectToAction(nameof(Index));
         }
     }

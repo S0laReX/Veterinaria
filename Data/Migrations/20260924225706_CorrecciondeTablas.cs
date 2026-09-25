@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -24,6 +24,8 @@ namespace Veterinaria.Data.Migrations
                 type: "nvarchar(450)",
                 nullable: false,
                 defaultValue: "");
+
+            migrationBuilder.Sql("UPDATE c SET c.UsuarioId = m.UsuarioId FROM Citas c INNER JOIN Mascotas m ON c.MascotaId = m.Id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Citas_UsuarioId",

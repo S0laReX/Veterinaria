@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Veterinaria.Models;
 
@@ -16,6 +16,9 @@ namespace Veterinaria.Data
         public static async Task InitializeAsync(IServiceProvider services)
         {
     
+
+            var context = services.GetRequiredService<ApplicationDbContext>();
+            await context.Database.MigrateAsync();
 
             var roleManager =
                 services.GetRequiredService<RoleManager<IdentityRole>>();
@@ -116,6 +119,19 @@ namespace Veterinaria.Data
                     throw new InvalidOperationException(
                         "No se pudo asignar el rol Administrador.");
                 }
+            }
+
+            // La versión anterior registraba cuentas sin asignarles un rol.
+            // Recuperar únicamente esas cuentas con el permiso mínimo de Cliente.
+            var usuariosSinRol = await userManager.Users
+                .Where(u => !context.UserRoles.Any(ur => ur.UserId == u.Id))
+                .ToListAsync();
+
+            foreach (var usuario in usuariosSinRol)
+            {
+                var resultado = await userManager.AddToRoleAsync(usuario, RolCliente);
+                if (!resultado.Succeeded)
+                    throw new InvalidOperationException("No se pudo asignar Cliente a una cuenta sin rol.");
             }
         }
     }

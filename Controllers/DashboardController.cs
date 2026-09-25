@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -45,13 +45,10 @@ namespace Veterinaria.Controllers
                     .CountAsync(c => c.Estado == "Cancelada");
 
 
-            var usuarios =
-                await _userManager.GetUsersInRoleAsync("Cliente");
-
             ViewBag.TotalServicios = totalServicios;
             ViewBag.TotalMascotas = totalMascotas;
             ViewBag.TotalCitas = totalCitas;
-            ViewBag.TotalClientes = usuarios.Count;
+            ViewBag.TotalUsuarios = await _userManager.Users.CountAsync();
 
             ViewBag.CitasPendientes = citasPendientes;
             ViewBag.CitasAtendidas = citasAtendidas;

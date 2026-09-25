@@ -16,6 +16,7 @@ namespace Veterinaria.Models
         public string Descripcion { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El precio es obligatorio.")]
+        [Display(Name = "Precio (Bs)")]
         [Range(0.01, 10000, ErrorMessage = "El precio debe estar entre 0.01 y 10000.")]
         [Column(TypeName = "decimal(10,2)")]
         public decimal Precio { get; set; }

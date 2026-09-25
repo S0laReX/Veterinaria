@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Veterinaria.Models.Mascota>
+@model IEnumerable<Veterinaria.Models.Mascota>
 
 @{
     ViewData["Title"] = "Mis Mascotas";
@@ -23,6 +23,8 @@
         </a>
     </div>
 
+@{ ViewBag.Resultados = Model.Count(); }
+    <partial name="_FiltrosListado" model="(FiltrosListado)ViewBag.Filtros" />
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show">
@@ -54,11 +56,11 @@
                     <i class="bi bi-emoji-smile display-1 text-muted"></i>
 
                     <h4 class="mt-3">
-                        No tienes mascotas registradas
+                        No encontramos mascotas para mostrar
                     </h4>
 
                     <p class="text-muted">
-                        Registra tu primera mascota para poder solicitar citas.
+                        Prueba con otros filtros o registra a tu compañero para solicitar una cita.
                     </p>
 
                     <a asp-action="Create" class="btn btn-primary">
