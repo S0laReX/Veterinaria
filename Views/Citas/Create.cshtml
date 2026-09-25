@@ -1,7 +1,9 @@
-﻿@model Veterinaria.Models.Cita
+@model Veterinaria.Models.Cita
 
 @{
-    ViewData["Title"] = "Solicitar Cita";
+    ViewData["Title"] = "Solicitar una cita";
+    var servicios = (IEnumerable<ServicioVeterinario>?)ViewBag.ServiciosDisponibles ?? [];
+    var seleccionado = servicios.FirstOrDefault(s => s.Id == Model?.ServicioVeterinarioId);
 }
 
 <div class="container py-5">
@@ -65,7 +67,7 @@
                                         class="form-select form-select-lg">
 
                                     <option value="">
-                                        -- Seleccione su mascota --
+                                        Elige a tu compañero
                                     </option>
 
                                 </select>
@@ -90,15 +92,18 @@
 
                                 </label>
 
-                                <select asp-for="ServicioVeterinarioId"
-                                        asp-items="ViewBag.Servicios"
-                                        class="form-select form-select-lg">
-
-                                    <option value="">
-                                        -- Seleccione un servicio --
-                                    </option>
-
+                                <select asp-for="ServicioVeterinarioId" class="form-select form-select-lg" aria-describedby="precio-ayuda">
+                                    <option value="">Elige el servicio que necesita</option>
+                                    @foreach (var servicio in servicios)
+                                    {
+                                        <option value="@servicio.Id" data-precio="@Moneda.Bolivianos(servicio.Precio)">@servicio.Nombre · @Moneda.Bolivianos(servicio.Precio)</option>
+                                    }
                                 </select>
+                                <div class="booking-price" aria-live="polite" aria-atomic="true">
+                                    <span>Precio de la atención</span>
+                                    <strong id="precio-cita">@(seleccionado == null ? "Elige un servicio" : Moneda.Bolivianos(seleccionado.Precio))</strong>
+                                    <small id="precio-ayuda">Tarifa actual del servicio, expresada en bolivianos.</small>
+                                </div>
 
                                 <div class="form-text">
                                     Selecciona el servicio que necesita tu mascota.
@@ -121,6 +126,7 @@
                                 </label>
 
                                 <input asp-for="FechaCita"
+                                       value="@(Model != null && Model.FechaCita != default ? Model.FechaCita.ToString("yyyy-MM-ddTHH:mm") : "")"
                                        type="datetime-local"
                                        class="form-control form-control-lg"
                                        id="fechaCita" />
@@ -147,7 +153,7 @@
                                         <p class="mb-0 mt-1">
                                             La cita quedará registrada inicialmente como
                                             <strong>Pendiente</strong>.
-                                            El personal administrativo podrá confirmar,
+                                            El equipo de la clínica podrá gestionar,
                                             atender o cancelar la cita.
                                         </p>
                                     </div>
@@ -197,6 +203,14 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+
+            const servicio = document.getElementById("ServicioVeterinarioId");
+            const precio = document.getElementById("precio-cita");
+            const actualizarPrecio = () => {
+                precio.textContent = servicio.selectedOptions[0]?.dataset.precio || "Elige un servicio";
+            };
+            servicio.addEventListener("change", actualizarPrecio);
+            actualizarPrecio();
 
             const inputFecha = document.getElementById("fechaCita");
 

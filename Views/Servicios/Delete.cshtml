@@ -1,4 +1,4 @@
-﻿@model Veterinaria.Models.ServicioVeterinario
+@model Veterinaria.Models.ServicioVeterinario
 
 @{
     ViewData["Title"] = "Eliminar Servicio";
@@ -60,7 +60,7 @@
                         </dt>
 
                         <dd class="col-sm-8">
-                            @Model.Precio.ToString("N2")
+                            @Moneda.Bolivianos(Model.Precio)
                         </dd>
 
                     </dl>

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Veterinaria.Data;
@@ -24,14 +24,12 @@ namespace Veterinaria.Controllers
         // GET: Servicios
         // ====================================================
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] FiltrosListado filtros)
         {
-            var servicios = await _context.ServiciosVeterinarios
-                .AsNoTracking()
-                .OrderBy(s => s.Nombre)
-                .ToListAsync();
-
-            return View(servicios);
+            ViewBag.Filtros = filtros;
+            ViewBag.TipoListado = "servicios";
+            var query = filtros.AplicarServicios(_context.ServiciosVeterinarios.AsNoTracking());
+            return View(await query.ToListAsync());
         }
 
         // ====================================================
@@ -181,6 +179,12 @@ namespace Veterinaria.Controllers
 
             if (servicio == null)
                 return RedirectToAction(nameof(Index));
+
+            if (await _context.Citas.AnyAsync(c => c.ServicioVeterinarioId == id))
+            {
+                TempData["Error"] = "No se puede eliminar el servicio porque existen citas asociadas.";
+                return RedirectToAction(nameof(Index));
+            }
 
             try
             {

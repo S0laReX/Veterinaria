@@ -1,4 +1,4 @@
-﻿@model Veterinaria.Models.Mascota
+@model Veterinaria.Models.Mascota
 
 @{
     ViewData["Title"] = "Registrar Mascota";
@@ -142,6 +142,7 @@
                                           rows="4"
                                           placeholder="Información adicional">
                                 </textarea>
+                                <span asp-validation-for="Observaciones" class="text-danger"></span>
 
                             </div>
 

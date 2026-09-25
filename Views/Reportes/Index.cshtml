@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Veterinaria.Models.ApplicationUser>
+@model IEnumerable<Veterinaria.Models.ApplicationUser>
 
 @{
     ViewData["Title"] = "Reportes";
@@ -83,11 +83,11 @@
 
                         <div class="mb-3">
 
-                            <label class="form-label">
-                                Cliente
-                            </label>
+                            <label for="buscar-cliente" class="form-label">Buscar cliente</label>
+                            <input id="buscar-cliente" type="search" class="form-control mb-3" placeholder="Nombre o correo" aria-describedby="clientes-encontrados" />
+                            <label for="cliente-reporte" class="form-label">Cliente</label>
 
-                            <select name="usuarioId"
+                            <select id="cliente-reporte" name="usuarioId"
                                     class="form-select"
                                     required>
 
@@ -98,11 +98,12 @@
                                 @foreach (var cliente in Model)
                                 {
                                     <option value="@cliente.Id">
-                                        @cliente.Email
+                                        @(string.IsNullOrWhiteSpace(cliente.NombreCompleto) ? cliente.Email : $"{cliente.NombreCompleto} · {cliente.Email}")
                                     </option>
                                 }
 
                             </select>
+                            <small id="clientes-encontrados" class="form-text" role="status"></small>
 
                         </div>
 
@@ -158,3 +159,18 @@
     </div>
 
 </div>
+@section Scripts {
+    <script>
+        const buscador = document.getElementById("buscar-cliente");
+        const clientes = document.getElementById("cliente-reporte");
+        const opciones = [...clientes.options].slice(1).map(o => ({ value: o.value, text: o.textContent.trim() }));
+        const normalizar = texto => texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        buscador.addEventListener("input", () => {
+            const seleccionado = clientes.value;
+            const encontrados = opciones.filter(o => normalizar(o.text).includes(normalizar(buscador.value.trim())));
+            clientes.replaceChildren(new Option("Selecciona un cliente", ""));
+            encontrados.forEach(o => clientes.add(new Option(o.text, o.value, false, o.value === seleccionado)));
+            document.getElementById("clientes-encontrados").textContent = `${encontrados.length} clientes encontrados`;
+        });
+    </script>
+}

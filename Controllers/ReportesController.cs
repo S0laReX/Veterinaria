@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,9 +30,7 @@ namespace Veterinaria.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var clientes = await _userManager.Users
-                .OrderBy(u => u.Email)
-                .ToListAsync();
+            var clientes = (await _userManager.GetUsersInRoleAsync("Cliente")).OrderBy(u => u.Email).ToList();
 
             return View(clientes);
         }
@@ -78,6 +76,7 @@ namespace Veterinaria.Controllers
                                 columns.RelativeColumn(2f);
                                 columns.RelativeColumn(1.5f);
                                 columns.RelativeColumn(1.2f);
+                                columns.RelativeColumn(1.2f);
                             });
 
                             table.Header(header =>
@@ -96,6 +95,7 @@ namespace Veterinaria.Controllers
 
                                 header.Cell().Element(CellHeader)
                                     .Text("Estado");
+                                header.Cell().Element(CellHeader).Text("Precio actual (Bs)");
                             });
 
                             foreach (var cita in citas)
@@ -114,6 +114,7 @@ namespace Veterinaria.Controllers
 
                                 table.Cell()
                                     .Text(cita.Estado);
+                                table.Cell().Text(Moneda.Bolivianos(cita.ServicioVeterinario?.Precio ?? 0));
                             }
                         });
 
@@ -148,7 +149,7 @@ namespace Veterinaria.Controllers
 
             var usuario = await _userManager.FindByIdAsync(usuarioId);
 
-            if (usuario == null)
+            if (usuario == null || !await _userManager.IsInRoleAsync(usuario, "Cliente"))
                 return NotFound();
 
             var citas = await _context.Citas
@@ -192,6 +193,7 @@ namespace Veterinaria.Controllers
                                 columns.RelativeColumn(2f);
                                 columns.RelativeColumn(1.5f);
                                 columns.RelativeColumn(1.5f);
+                                columns.RelativeColumn(1.5f);
                             });
 
                             table.Header(header =>
@@ -211,6 +213,7 @@ namespace Veterinaria.Controllers
                                 header.Cell()
                                     .Element(CellHeader)
                                     .Text("Estado");
+                                header.Cell().Element(CellHeader).Text("Precio actual (Bs)");
                             });
 
                             foreach (var cita in citas)
@@ -226,6 +229,7 @@ namespace Veterinaria.Controllers
 
                                 table.Cell()
                                     .Text(cita.Estado);
+                                table.Cell().Text(Moneda.Bolivianos(cita.ServicioVeterinario?.Precio ?? 0));
                             }
                         });
                 });

@@ -1,0 +1,37 @@
+@model IEnumerable<Veterinaria.Models.ServicioVeterinario>
+@{ ViewData["Title"] = "Servicios"; }
+<div class="container py-5">
+<span class="eyebrow">Cuidado para cada etapa</span>
+<h1 class="mt-3">Nuestros servicios</h1>
+<p class="text-muted mb-4">Encuentra la atención que necesita tu compañero.</p>
+@{ ViewBag.Resultados = Model.Count(); }
+    <partial name="_FiltrosListado" model="(FiltrosListado)ViewBag.Filtros" />
+    @if (!Model.Any()) { <div class="empty-state">No encontramos servicios con estos filtros. Puedes limpiar la búsqueda y volver a intentarlo.</div> }
+else {
+<div class="card p-3">
+<div class="table-responsive">
+<table class="table align-middle">
+<thead>
+<tr>
+<th>Servicio</th>
+<th>Descripción</th>
+<th>Precio (Bs)</th>
+<th>
+<span class="visually-hidden">Reservar</span>
+</th>
+</tr>
+</thead>
+<tbody>
+@foreach(var servicio in Model) { <tr>
+<td class="fw-bold">@servicio.Nombre</td>
+<td>@servicio.Descripcion</td>
+<td>@Moneda.Bolivianos(servicio.Precio)</td>
+<td>
+<a class="btn btn-outline-success" asp-controller="Citas" asp-action="Create" asp-route-servicioId="@servicio.Id">Solicitar cita</a>
+</td>
+</tr> }
+</tbody>
+</table>
+</div>
+</div>
+}</div>

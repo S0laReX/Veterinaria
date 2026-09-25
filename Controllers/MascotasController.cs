@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,19 +22,29 @@ namespace Veterinaria.Controllers
         }
 
         // GET: Mascotas
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] FiltrosListado filtros)
         {
             var usuario = await _userManager.GetUserAsync(User);
+            if (usuario == null) return Challenge();
 
-            if (usuario == null)
-                return Challenge();
-
-            var mascotas = await _context.Mascotas
-                .Where(m => m.UsuarioId == usuario.Id)
-                .OrderBy(m => m.Nombre)
-                .ToListAsync();
-
-            return View(mascotas);
+            // Aplicar siempre la propiedad antes de cualquier búsqueda.
+            var query = _context.Mascotas.AsNoTracking().Where(m => m.UsuarioId == usuario.Id);
+            ViewBag.Especies = await query.Select(m => m.Especie).Distinct().OrderBy(e => e).ToListAsync();
+            var texto = filtros.Buscar?.Trim();
+            if (!string.IsNullOrWhiteSpace(texto))
+                query = query.Where(m => m.Nombre.Contains(texto) || m.Raza.Contains(texto));
+            if (!string.IsNullOrEmpty(filtros.Especie)) query = query.Where(m => m.Especie == filtros.Especie);
+            if (!string.IsNullOrEmpty(filtros.Sexo)) query = query.Where(m => m.Sexo == filtros.Sexo);
+            query = filtros.Orden switch
+            {
+                "edad-asc" => query.OrderBy(m => m.Edad).ThenBy(m => m.Nombre),
+                "edad-desc" => query.OrderByDescending(m => m.Edad).ThenBy(m => m.Nombre),
+                "nombre-desc" => query.OrderByDescending(m => m.Nombre),
+                _ => query.OrderBy(m => m.Nombre)
+            };
+            ViewBag.Filtros = filtros;
+            ViewBag.TipoListado = "mascotas";
+            return View(await query.ToListAsync());
         }
 
         // GET: Mascotas/Create
@@ -46,8 +56,9 @@ namespace Veterinaria.Controllers
         // POST: Mascotas/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Mascota mascota)
+        public async Task<IActionResult> Create([Bind("Nombre,Especie,Raza,Edad,Sexo,Observaciones")] Mascota mascota)
         {
+            ModelState.Remove(nameof(Mascota.UsuarioId));
             if (!ModelState.IsValid)
                 return View(mascota);
 
@@ -92,7 +103,7 @@ namespace Veterinaria.Controllers
         // POST: Mascotas/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Mascota mascota)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Especie,Raza,Edad,Sexo,Observaciones")] Mascota mascota)
         {
             if (id != mascota.Id)
                 return NotFound();
@@ -110,6 +121,7 @@ namespace Veterinaria.Controllers
             if (mascotaDb == null)
                 return NotFound();
 
+            ModelState.Remove(nameof(Mascota.UsuarioId));
             if (!ModelState.IsValid)
                 return View(mascota);
 

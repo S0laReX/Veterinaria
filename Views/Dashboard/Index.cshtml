@@ -1,4 +1,4 @@
-﻿@using System.Text.Json
+@using System.Text.Json
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -16,7 +16,7 @@ var datosMeses =
 
 <div class="container py-5">
 
-    ```
+
     <!-- ENCABEZADO -->
 
     <div class="mb-5">
@@ -58,11 +58,11 @@ var datosMeses =
                         <div>
 
                             <small class="text-muted">
-                                CLIENTES
+                                USUARIOS
                             </small>
 
                             <h2 class="fw-bold mb-0">
-                                @ViewBag.TotalClientes
+                                @ViewBag.TotalUsuarios
                             </h2>
 
                         </div>
@@ -305,7 +305,10 @@ var datosMeses =
 
             <div style="height:350px;">
 
-                <canvas id="citasChart"></canvas>
+                @{ var meses = new[] { "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" }; var maximo = Math.Max(1, datosMeses.Max()); }
+<div class="chart-bars" role="img" aria-label="Citas por mes del año @DateTime.Now.Year">
+@for (var i = 0; i < 12; i++) { <div class="chart-bar"><b>@datosMeses[i]</b><i style="height:@(datosMeses[i] * 180 / maximo)px" aria-hidden="true"></i><span>@meses[i]</span></div> }
+</div>
 
             </div>
 
@@ -423,89 +426,6 @@ var datosMeses =
         </div>
 
     </div>
-    ```
+
 
 </div>
-
-@section Scripts {
-
-    ```
-    <!-- Chart.js -->
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-
-    <script>
-
-        const datosMeses =
-        @Html.Raw(JsonSerializer.Serialize(datosMeses));
-
-
-        const ctx =
-        document
-        .getElementById("citasChart");
-
-
-        new Chart(ctx, {
-
-        type: "bar",
-
-        data: {
-
-        labels: [
-        "Ene",
-        "Feb",
-        "Mar",
-        "Abr",
-        "May",
-        "Jun",
-        "Jul",
-        "Ago",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dic"
-        ],
-
-        datasets: [
-
-        {
-        label: "Citas",
-
-        data: datosMeses,
-
-        borderWidth: 1
-        }
-
-        ]
-
-        },
-
-        options: {
-
-        responsive: true,
-
-        maintainAspectRatio: false,
-
-        scales: {
-
-        y: {
-
-        beginAtZero: true,
-
-        ticks: {
-
-        precision: 0
-
-        }
-
-        }
-
-        }
-
-        }
-
-        });
-
-    </script>
-}

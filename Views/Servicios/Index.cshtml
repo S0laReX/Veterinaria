@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Veterinaria.Models.ServicioVeterinario>
+@model IEnumerable<Veterinaria.Models.ServicioVeterinario>
 
 @{
     ViewData["Title"] = "Servicios Veterinarios";
@@ -32,6 +32,8 @@
     </div>
 
 
+@{ ViewBag.Resultados = Model.Count(); }
+    <partial name="_FiltrosListado" model="(FiltrosListado)ViewBag.Filtros" />
     <!-- Mensajes -->
     @if (TempData["Success"] != null)
     {
@@ -116,7 +118,7 @@
                                     </td>
 
                                     <td class="text-end">
-                                        @servicio.Precio.ToString("N2")
+                                        @Moneda.Bolivianos(servicio.Precio)
                                     </td>
 
                                     <td>
@@ -174,7 +176,7 @@
                                     text-muted
                                     py-5">
 
-                                    No existen servicios registrados.
+                                    No encontramos servicios. Prueba con otros filtros o añade uno nuevo.
 
                                 </td>
 

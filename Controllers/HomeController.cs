@@ -1,14 +1,26 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using Veterinaria.Models;
+using Veterinaria.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Veterinaria.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly ApplicationDbContext _context;
+        public HomeController(ApplicationDbContext context) => _context = context;
+
+        public async Task<IActionResult> Index()
         {
-            return View();
+            return View(await _context.ServiciosVeterinarios.AsNoTracking().OrderBy(s => s.Nombre).ToListAsync());
+        }
+
+        public async Task<IActionResult> Servicios([FromQuery] FiltrosListado filtros)
+        {
+            ViewBag.Filtros = filtros;
+            ViewBag.TipoListado = "servicios";
+            return View(await filtros.AplicarServicios(_context.ServiciosVeterinarios.AsNoTracking()).ToListAsync());
         }
 
         public IActionResult Privacy()
